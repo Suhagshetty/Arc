@@ -1,7 +1,7 @@
 "use client"
 
 import Image from "next/image"
-import { Moon, Sun } from "lucide-react"
+import { Bolt, Moon, Sun, User2 } from "lucide-react"
 import { useTheme } from "next-themes"
 import { useEffect, useState } from "react"
 
@@ -13,10 +13,13 @@ import {
   SidebarGroup,
   SidebarHeader,
 } from "@/components/ui/sidebar"
+import { SignInButton, useUser } from "@clerk/nextjs"
+import UsageCreditProgress from "./UsageCreditProgress"
 
 export function AppSidebar() {
   const { theme, setTheme } = useTheme()
   const [mounted, setMounted] = useState(false)
+  const { user } = useUser()
 
   useEffect(() => {
     setMounted(true)
@@ -37,7 +40,7 @@ export function AppSidebar() {
             <h1 className="text-lg font-semibold">Arc</h1>
           </div>
 
-          {/* ✅ Hydration-safe theme toggle */}
+          {/* Hydration-safe theme toggle */}
           {mounted && (
             <Button
               variant="ghost"
@@ -54,9 +57,11 @@ export function AppSidebar() {
           )}
         </div>
 
-        <div className="px-3 pt-4">
-          <Button className="w-full">+ New Chat</Button>
-        </div>
+        {user && (
+          <div className="px-3 pt-4">
+            <Button className="w-full">+ New Chat</Button>
+          </div>
+        )}
       </SidebarHeader>
 
       <SidebarContent>
@@ -64,17 +69,33 @@ export function AppSidebar() {
           <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
             Chat
           </h2>
-          <p className="mt-2 text-sm text-muted-foreground">
+        {!user && <p className="mt-2 text-sm text-muted-foreground">
             Sign in to chat with our multi-model AI
-          </p>
+          </p> }
         </SidebarGroup>
       </SidebarContent>
 
       <SidebarFooter>
-        <div className="px-3 pb-4">
-          <Button size="lg" className="w-full">
-            Sign In / Sign Up
-          </Button>
+        <div className="px-3 mb-10">
+          {!user ? (
+            <SignInButton mode="modal">
+              <Button size="lg" className="w-full">
+                Sign In / Sign Up
+              </Button>
+            </SignInButton>
+          ) : (
+            <div>
+              <UsageCreditProgress />
+              <Button className="w-full mb-3">
+                <Bolt className="mr-2" />
+                Upgrade
+              </Button>
+              <Button className="w-full flex items-center justify-start" variant="ghost">
+                <User2 className="mr-2" />
+                <h2>Settings</h2>
+              </Button>
+            </div>
+          )}
         </div>
       </SidebarFooter>
     </Sidebar>
