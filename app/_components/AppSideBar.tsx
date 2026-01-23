@@ -1,29 +1,29 @@
-"use client"
+"use client";
 
-import Image from "next/image"
-import { Bolt, Moon, Sun, User2 } from "lucide-react"
-import { useTheme } from "next-themes"
-import { useEffect, useState } from "react"
+import Image from "next/image";
+import { Bolt, Moon, Sun, User2 } from "lucide-react";
+import { useTheme } from "next-themes";
+import { useEffect, useState } from "react";
 
-import { Button } from "@/components/ui/button"
+import { Button } from "@/components/ui/button";
 import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
   SidebarGroup,
   SidebarHeader,
-} from "@/components/ui/sidebar"
-import { SignInButton, useUser } from "@clerk/nextjs"
-import UsageCreditProgress from "./UsageCreditProgress"
+} from "@/components/ui/sidebar";
+import { SignInButton, useUser } from "@clerk/nextjs";
+import UsageCreditProgress from "./UsageCreditProgress";
 
 export function AppSidebar() {
-  const { theme, setTheme } = useTheme()
-  const [mounted, setMounted] = useState(false)
-  const { user } = useUser()
+  const { theme, setTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+  const { user } = useUser();
 
   useEffect(() => {
-    setMounted(true)
-  }, [])
+    setMounted(true);
+  }, []);
 
   return (
     <Sidebar className="border-r">
@@ -37,7 +37,7 @@ export function AppSidebar() {
               height={40}
               className="rounded"
             />
-            <h1 className="text-lg font-semibold">Arc</h1>
+            <h1 className="text-lg font-semibold">Arc — Unified</h1>
           </div>
 
           {/* Hydration-safe theme toggle */}
@@ -69,9 +69,11 @@ export function AppSidebar() {
           <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
             Chat
           </h2>
-        {!user && <p className="mt-2 text-sm text-muted-foreground">
-            Sign in to chat with our multi-model AI
-          </p> }
+          {!user && (
+            <p className="mt-2 text-sm text-muted-foreground">
+              Sign in to chat with our multi-model AI
+            </p>
+          )}
         </SidebarGroup>
       </SidebarContent>
 
@@ -90,7 +92,10 @@ export function AppSidebar() {
                 <Bolt className="mr-2" />
                 Upgrade
               </Button>
-              <Button className="w-full flex items-center justify-start" variant="ghost">
+              <Button
+                className="w-full flex items-center justify-start"
+                variant="ghost"
+              >
                 <User2 className="mr-2" />
                 <h2>Settings</h2>
               </Button>
@@ -99,5 +104,5 @@ export function AppSidebar() {
         </div>
       </SidebarFooter>
     </Sidebar>
-  )
+  );
 }
