@@ -39,19 +39,19 @@ const AiMultiModels = () => {
   return (
     <div className="flex flex-1 h-[75vh] border-b">
       {aiModelList.map((model, index) => (
-        <div key={index} className="flex flex-col border-r h-full min-w-[400px]">
+        <div key={model.model} className="flex flex-col border-r h-full min-w-[400px]">
           <div className="flex w-full items-center justify-between border-b p-4">
             <div className="flex items-center gap-4">
               <Image src={model.icon} alt="models" width={24} height={24} />
 
-              {model.enable && (
-                <Select>
+              {model.enable && model.subModel && model.subModel.length > 0 && (
+                <Select defaultValue={model.subModel[0].name}>
                   <SelectTrigger className="w-[180px]">
-                    <SelectValue placeholder={model.subModel[0].name} />
+                    <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    {model.subModel.map((submodel, index) => (
-                      <SelectItem key={index} value={submodel.name}>
+                    {model.subModel.map((submodel, subIndex) => (
+                      <SelectItem key={`${model.model}-${subIndex}`} value={submodel.name}>
                         {submodel.name}
                       </SelectItem>
                     ))}
@@ -66,8 +66,8 @@ const AiMultiModels = () => {
                 />
               ) : (
                 <MessageSquare
-                  onClick={() => onToggleChange(model.model,true)}
-                  className="cursor-pointer"
+                  onClick={() => onToggleChange(model.model, true)}
+                  className="cursor-pointer h-5 w-5"
                 />
               )}
             </div>
@@ -75,7 +75,7 @@ const AiMultiModels = () => {
           {model.premium && model.enable && (
             <div className="flex items-center justify-center p-4">
               <Button>
-                <Lock className="mr-2" />
+                <Lock className="mr-2 h-4 w-4" />
                 Upgrade to Unlock
               </Button>
             </div>

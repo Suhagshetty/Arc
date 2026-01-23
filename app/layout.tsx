@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-
+import { ClerkProvider } from '@clerk/nextjs';
 import { ThemeProvider } from "@/components/theme-provider";
 import {
   SidebarProvider,
@@ -10,6 +10,7 @@ import {
 
 import { AppSidebar } from "./_components/AppSideBar";
 import AppHeader from "./_components/AppHeader";
+import UserInitializer from "./_components/UserInitializer";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -32,30 +33,33 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
+    <ClerkProvider>
+      <html lang="en" suppressHydrationWarning>
+        <body
+          className={`${geistSans.variable} ${geistMono.variable} antialiased`}
         >
-          <SidebarProvider>
-            {/* Sidebar */}
-            <AppSidebar />
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+          >
+            <UserInitializer />
+            <SidebarProvider>
+              {/* Sidebar */}
+              <AppSidebar />
 
-            {/* Main Content */}
-            <SidebarInset className="flex min-h-screen flex-col">
-              <AppHeader />
-              <main className="flex-1 px-4 py-2">
-                {children}
-              </main>
-            </SidebarInset>
-          </SidebarProvider>
-        </ThemeProvider>
-      </body>
-    </html>
+              {/* Main Content */}
+              <SidebarInset className="flex min-h-screen flex-col">
+                <AppHeader />
+                <main className="flex-1 px-4 py-2">
+                  {children}
+                </main>
+              </SidebarInset>
+            </SidebarProvider>
+          </ThemeProvider>
+        </body>
+      </html>
+    </ClerkProvider>
   );
 }
