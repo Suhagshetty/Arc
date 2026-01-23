@@ -10,7 +10,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import AiModelList from "@/shared/AiModelList";
-import React, { useContext, useState } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import Image from "next/image";
 import { Switch } from "@/components/ui/switch";
 import { Lock, MessageSquare } from "lucide-react";
@@ -40,6 +40,11 @@ const AiMultiModels = () => {
   const { aiSelectedModels, setAiSelectedModels } = useContext(
     AiSelectedModelContext,
   );
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const onToggleChange = (model: string, value: boolean) => {
     setAiModelList((prev) =>
@@ -76,15 +81,13 @@ const AiMultiModels = () => {
             <div className="flex items-center gap-4">
               <Image src={model.icon} alt="models" width={24} height={24} />
 
-              {model.enable && model.subModel && model.subModel.length > 0 && (
+              {mounted && model.enable && model.subModel && model.subModel.length > 0 && (
                 <Select
-                  defaultValue={aiSelectedModels[model.model]?.modelId}
+                  value={aiSelectedModels[model.model]?.modelId}
                   onValueChange={(value) => onSelectedValue(model.model, value)}
                 >
                   <SelectTrigger className="w-[180px]">
-                    <SelectValue
-                      placeholder={aiSelectedModels[model.model]?.modelId}
-                    />
+                    <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectGroup className="p-3">
