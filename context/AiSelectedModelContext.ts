@@ -12,6 +12,7 @@ export type AiSelectedModelsType = {
   Grok: ModelConfig;
   Cohere: ModelConfig;
   LLama: ModelConfig;
+  [key: string]: ModelConfig;
 };
 
 interface AiSelectedModelContextType {

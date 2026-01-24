@@ -10,14 +10,14 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import AiModelList from "@/shared/AiModelList";
-import React, { useContext, useState } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import Image from "next/image";
 import { Switch } from "@/components/ui/switch";
 import { Lock, MessageSquare } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { AiSelectedModelContext } from "@/context/AiSelectedModelContext";
 import { useUser } from "@clerk/nextjs";
-import { doc, updateDoc } from "firebase/firestore";
+import { doc, setDoc } from "firebase/firestore";
 import { db } from "@/config/FireBaseConfig";
 
 // Define types
@@ -40,6 +40,11 @@ const AiMultiModels = () => {
   const { aiSelectedModels, setAiSelectedModels } = useContext(
     AiSelectedModelContext,
   );
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const onToggleChange = (model: string, value: boolean) => {
     setAiModelList((prev) =>
@@ -57,11 +62,21 @@ const AiMultiModels = () => {
 
     setAiSelectedModels(updatedModels);
 
+    // Save to Firebase with error handling
     if (user?.primaryEmailAddress?.emailAddress) {
-      const docRef = doc(db, "users", user.primaryEmailAddress.emailAddress);
-      await updateDoc(docRef, {
-        selectedModelPref: updatedModels,
-      });
+      try {
+        const docRef = doc(db, "users", user.primaryEmailAddress.emailAddress);
+        await setDoc(
+          docRef,
+          {
+            selectedModelPref: updatedModels,
+          },
+          { merge: true },
+        );
+        console.log("Model preference saved to Firebase");
+      } catch (error) {
+        console.error("Failed to update Firestore:", error);
+      }
     }
   };
 
@@ -76,57 +91,60 @@ const AiMultiModels = () => {
             <div className="flex items-center gap-4">
               <Image src={model.icon} alt="models" width={24} height={24} />
 
-              {model.enable && model.subModel && model.subModel.length > 0 && (
-                <Select
-                  defaultValue={aiSelectedModels[model.model]?.modelId}
-                  onValueChange={(value) => onSelectedValue(model.model, value)}
-                >
-                  <SelectTrigger className="w-[180px]">
-                    <SelectValue
-                      placeholder={aiSelectedModels[model.model]?.modelId}
-                    />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectGroup className="p-3">
-                      <SelectLabel className="text-gray-500 text-sm">
-                        Free
-                      </SelectLabel>
-                      {model.subModel.map(
-                        (submodel, subIndex) =>
-                          !submodel.premium && (
-                            <SelectItem
-                              key={`${model.model}-${subIndex}`}
-                              value={submodel.name}
-                            >
-                              {submodel.name}
-                            </SelectItem>
-                          ),
-                      )}
-                    </SelectGroup>
-
-                    <SelectGroup className="p-3">
-                      <SelectLabel className="text-sm text-gray-500">
-                        Premium
-                      </SelectLabel>
-                      {model.subModel.map(
-                        (submodel, subIndex) =>
-                          submodel.premium && (
-                            <SelectItem
-                              key={`${model.model}-premium-${subIndex}`}
-                              value={submodel.name}
-                              disabled={submodel.premium}
-                            >
-                              <div className="flex items-center gap-2">
+              {mounted &&
+                model.enable &&
+                model.subModel &&
+                model.subModel.length > 0 && (
+                  <Select
+                    value={aiSelectedModels[model.model]?.modelId}
+                    onValueChange={(value) =>
+                      onSelectedValue(model.model, value)
+                    }
+                  >
+                    <SelectTrigger className="w-[180px]">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectGroup className="p-3">
+                        <SelectLabel className="text-gray-500 text-sm">
+                          Free
+                        </SelectLabel>
+                        {model.subModel.map(
+                          (submodel, subIndex) =>
+                            !submodel.premium && (
+                              <SelectItem
+                                key={`${model.model}-${subIndex}`}
+                                value={submodel.name}
+                              >
                                 {submodel.name}
-                                <Lock className="h-4 w-4" />
-                              </div>
-                            </SelectItem>
-                          ),
-                      )}
-                    </SelectGroup>
-                  </SelectContent>
-                </Select>
-              )}
+                              </SelectItem>
+                            ),
+                        )}
+                      </SelectGroup>
+
+                      <SelectGroup className="p-3">
+                        <SelectLabel className="text-sm text-gray-500">
+                          Premium
+                        </SelectLabel>
+                        {model.subModel.map(
+                          (submodel, subIndex) =>
+                            submodel.premium && (
+                              <SelectItem
+                                key={`${model.model}-premium-${subIndex}`}
+                                value={submodel.name}
+                                disabled={submodel.premium}
+                              >
+                                <div className="flex items-center gap-2">
+                                  {submodel.name}
+                                  <Lock className="h-4 w-4" />
+                                </div>
+                              </SelectItem>
+                            ),
+                        )}
+                      </SelectGroup>
+                    </SelectContent>
+                  </Select>
+                )}
 
               {model.enable ? (
                 <Switch
